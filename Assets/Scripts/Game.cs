@@ -1,24 +1,60 @@
-﻿using System;
-using UnityEngine;
-using Test.Movement;
-using Test.Movement.DirectionStrategies;
+﻿using UnityEngine;
+using Unity.Entities;
 
 namespace Test
 {
 	public class Game : MonoBehaviour
 	{		
-		[SerializeField] private GameObject player;
-		[SerializeField] private PlayerInputStrategy playerInputStrategy;
+		[SerializeField] private GameObject playerPrefabAsset;
+		//[SerializeField] private GameObject camera;
 
-		private void Awake()
-		{
-			ResolveDependencies();
-		}
+		//[SerializeField] private PlayerInputMovementStrategy playerInputMovementtStrategy;
+		//[SerializeField] private PlayerInputTargetStrategy playerInputTargetStrategy;
 
-		private void ResolveDependencies()
+		//[SerializeField] private GameObject projectilePrefab;
+		//private BulletFactory bulletFactory;
+
+		private World world;
+		private EntityManager entityManager;
+		private GameObjectConversionSettings conversionSettings;
+
+		private Entity player;		
+
+		private void Start()
 		{
-			var playerMovement = player.GetComponent<MovementBehaviour>();
-			playerMovement.Init(playerInputStrategy);
+			world = World.DefaultGameObjectInjectionWorld;
+			entityManager = world.EntityManager;
+			conversionSettings = GameObjectConversionSettings.FromWorld(world, null);
+
+			
 		}
+		
+		//private void ResolveDependencies()
+		//{
+		//	ResolvePlayer();
+		//	ResolveCamera();
+		//}
+
+		//private void ResolveCamera()
+		//{
+		//	var cameraMovement = camera.GetComponent<MovementBehaviour>();
+		//	var directionStrategy = camera.GetComponent<IDirectionStrategy>();
+		//	if (directionStrategy == null)
+		//	{
+		//		var newStrategy = camera.AddComponent<FollowStrategy>();
+		//		newStrategy.Target = player;
+		//		directionStrategy = newStrategy;
+		//	}
+		//	cameraMovement.Init(directionStrategy);
+		//}
+
+		//private void ResolvePlayer()
+		//{
+		//	var playerMovement = player.GetComponent<MovementBehaviour>();
+		//	var fireBehaviour = player.GetComponent<FireBehaviour>();
+		//	playerMovement.Init(playerInputMovementtStrategy);
+		//	bulletFactory = new BulletFactory(projectilePrefab);
+		//	fireBehaviour.Init(() => bulletFactory.Get(), playerInputTargetStrategy);
+		//}
 	} 
 }
