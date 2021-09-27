@@ -1,23 +1,28 @@
 ﻿using Test.Balance;
 using Test.Components;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Physics;
 using UnityEngine;
 
-public class PlayerControllerMovement : SystemBase
+[AlwaysSynchronizeSystem]
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+public class PlayerControllerMovement : JobComponentSystem
 {
-	protected override void OnUpdate()
+	protected override JobHandle OnUpdate(JobHandle inputHandle)
 	{
 		float speed = 0f;
+		float deltaTime = Time.DeltaTime;
 		Entities.ForEach((ref BalanceComponent balanceComponent) =>
 		{
 			ref BlobAssetReference<BalanceBlobAsset> balance = ref balanceComponent.Balance;
 			speed = balance.Value.player.speed;
 		}).Run();
 		
-		Entities.ForEach((ref Velocity velocity, in PlayerControlled playerControlled) =>
+		Entities.ForEach((ref PhysicsVelocity velocity, in PlayerControlled playerControlled) =>
 		{
-			float2 input = float2.zero;
+			float3 input = float3.zero;
 			if (Input.GetKey(KeyCode.A))
 				input.x = -1;
 			if (Input.GetKey(KeyCode.D))
@@ -26,7 +31,11 @@ public class PlayerControllerMovement : SystemBase
 				input.y = 1;
 			if (Input.GetKey(KeyCode.S))
 				input.y = -1;
-			velocity.Value = input * speed;
+			if (!input.Equals(float3.zero))
+				input = math.normalize(input);
+			velocity.Linear = input * speed * deltaTime;
 		}).Run();
+
+		return default;
 	}
 }
